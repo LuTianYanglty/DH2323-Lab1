@@ -131,7 +131,5 @@ void Update(vector<vec3>& stars)
 		stars[s].z -= v * dt;
 		if (stars[s].z <= 0)
 			stars[s].z += 1;
-		if (stars[s].z > 1)
-			stars[s].z -= 1;
 	}
 }
