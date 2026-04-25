@@ -11,6 +11,8 @@
 #include <iostream>
 #include <glm/glm.hpp>
 #include <vector>
+#include <cstdlib>
+#include <cmath>
 #include "SDL2Auxiliary.h"
 
 using namespace std;
@@ -21,13 +23,16 @@ using glm::vec3;
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 SDL2Aux *sdlAux;
+vector<vec3> stars(1000);
+int t;
 
 // ---------------------------------------------------------
 // FUNCTION DECLARATIONS
 void Interpolate(float a, float b, vector<float>& result);
 void Interpolate(vec3 a, vec3 b, vector<vec3>& result);
 
-void Draw();
+void Draw(vector<vec3>& stars);
+void Update(vector<vec3>& stars);
 // ---------------------------------------------------------
 
 // FUNCTION DEFINITIONS
@@ -51,32 +56,39 @@ int main(int argc, char* argv[])
 	cout << endl;
 
 	sdlAux = new SDL2Aux(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	for (int s = 0; s < (int)stars.size(); ++s) {
+		stars[s].x = 2.0f * float(rand()) / float(RAND_MAX) - 1.0f;
+		stars[s].y = 2.0f * float(rand()) / float(RAND_MAX) - 1.0f;
+		stars[s].z = float(rand()) / float(RAND_MAX);
+	}
+
+	t = SDL_GetTicks();
 	while (!sdlAux->quitEvent()) {
-		Draw();
+		Update(stars);
+		Draw(stars);
 	}
 	sdlAux->saveBMP("screenshot.bmp");
 	return 0;
 }
 
-void Draw()
+void Draw(vector<vec3>& stars)
 {
 	sdlAux->clearPixels();
 
-	vec3 topLeft(1, 0, 0);
-	vec3 topRight(0, 0, 1);
-	vec3 bottomLeft(0, 1, 0);
-	vec3 bottomRight(1, 1, 0);
+	float f = SCREEN_HEIGHT / 2.0f;
+	float cx = SCREEN_WIDTH / 2.0f;
+	float cy = SCREEN_HEIGHT / 2.0f;
 
-	vector<vec3> leftSide(SCREEN_HEIGHT);
-	vector<vec3> rightSide(SCREEN_HEIGHT);
-	Interpolate(topLeft, bottomLeft, leftSide);
-	Interpolate(topRight, bottomRight, rightSide);
+	for (size_t i = 0; i < stars.size(); ++i) {
+		if (stars[i].z <= 0)
+			continue;
+		int u = int(f * stars[i].x / stars[i].z + cx);
+		int v = int(f * stars[i].y / stars[i].z + cy);
 
-	for (int y = 0; y < SCREEN_HEIGHT; ++y) {
-		vector<vec3> row(SCREEN_WIDTH);
-		Interpolate(leftSide[y], rightSide[y], row);
-		for (int x = 0; x < SCREEN_WIDTH; ++x) {
-			sdlAux->putPixel(x, y, row[x]);
+		if (u >= 0 && u < SCREEN_WIDTH && v >= 0 && v < SCREEN_HEIGHT) {
+			vec3 color = 0.2f * vec3(1, 1, 1) / (stars[i].z * stars[i].z);
+			sdlAux->putPixel(u, v, color);
 		}
 	}
 
@@ -106,5 +118,22 @@ void Interpolate(vec3 a, vec3 b, vector<vec3>& result)
 	vec3 step = (b - a) / float(N - 1);
 	for (int i = 0; i < N; ++i) {
 		result[i] = a + step * float(i);
+	}
+}
+
+void Update(vector<vec3>& stars)
+{
+	int t2 = SDL_GetTicks();
+	float dt = float(t2 - t);
+	t = t2;
+
+	float v = 0.0005f;
+
+	for (int s = 0; s < (int)stars.size(); ++s) {
+		stars[s].z -= v * dt;
+		if (stars[s].z <= 0)
+			stars[s].z += 1;
+		if (stars[s].z > 1)
+			stars[s].z -= 1;
 	}
 }
