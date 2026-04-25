@@ -46,7 +46,7 @@ void Draw()
 	{
 		for (int x = 0; x<SCREEN_WIDTH; ++x)
 		{
-			vec3 color(0.0,0.0,1.0);
+			vec3 color(1.0, 1.0, 0.0);
 			sdlAux->putPixel(x, y, color);
 		}
 	}
