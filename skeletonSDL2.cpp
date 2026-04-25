@@ -81,8 +81,6 @@ void Draw(vector<vec3>& stars)
 	float cy = SCREEN_HEIGHT / 2.0f;
 
 	for (size_t i = 0; i < stars.size(); ++i) {
-		if (stars[i].z <= 0)
-			continue;
 		int u = int(f * stars[i].x / stars[i].z + cx);
 		int v = int(f * stars[i].y / stars[i].z + cy);
 
