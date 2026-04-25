@@ -1,0 +1,17 @@
+# Build directory
+project/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Compiled binary
+DH2323SkeletonSDL2
+
+# Screenshots
+*.bmp
+
+# macOS
+.DS_Store
